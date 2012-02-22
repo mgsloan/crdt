@@ -1,0 +1,39 @@
+Name:                crdt
+Version:             0.0.1
+Synopsis:            
+Description:         
+License:             BSD3
+License-file:        LICENSE
+Author:              Michael Sloan
+Maintainer:          Michael Sloan <mgsloan at gmail>
+Homepage:            http://github.com/mgsloan/crdt
+Copyright:           Michael Sloan 2012
+Category:            
+Build-type:          Simple
+Extra-source-files:  
+Data-files:          
+Cabal-version:       >=1.6
+Bug-Reports:         http://github.com/mgsloan/crdt/issues
+Source-Repository head
+  Type: git
+  Location: git://github.com/mgsloan/crdt
+
+Library
+  Hs-Source-Dirs:    src
+  Exposed-modules:   Data.CRDT
+                     Data.CRDT.Counter
+                     Data.CRDT.Inc
+                     Data.CRDT.Set
+                     Data.CRDT.Tagged
+                     Data.CRDT.Utils
+  Build-depends:     base             >= 3.0   && < 6,
+                     containers,
+                     fclabels         >= 1.1   && < 1.2,
+                     lattices,
+                     newtype,
+                     newtype-th       >= 0.3.2 && < 0.4,
+                     semigroups,
+                     these            >= 0.1   && < 0.2,
+                     vector           >= 0.4   && < 1.0
+  Extensions:        TemplateHaskell
+  Ghc-options:       -Wall
