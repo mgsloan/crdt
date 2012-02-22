@@ -11,8 +11,6 @@ module Data.CRDT.Counter ( Counter, count ) where
 import Data.CRDT.Inc
 import Data.CRDT.Utils
 
-import Data.Semigroup (Max(..))
-
 newtype Counter a = Counter (Inc a, Inc a) deriving
   ( Eq, Read, Show, JoinSemiLattice, BoundedJoinSemiLattice, Semigroup, Monoid )
 
@@ -20,10 +18,10 @@ $(mkNewType ''Counter)
 
 instance (Enum a, Integral a, Num a, PartialOrd a)
       => Enum (Counter a) where
-    succ = Counter `over` first  increment
-    pred = Counter `over` second increment
-    toEnum i = Counter (set incCount (fromIntegral i) bottom, bottom)
-    fromEnum = fromIntegral . get count
+  succ = Counter `over` first  increment
+  pred = Counter `over` second increment
+  toEnum i = Counter (set incCount (fromIntegral i) bottom, bottom)
+  fromEnum = fromIntegral . get count
 
 count :: (Num a, PartialOrd a) => Counter a :-> a
 count = lens getter setter

@@ -84,6 +84,7 @@ instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice  [a] where
 instance (PartialOrd a) => PartialOrd [a] where
   leq x y = all id $ zipWith leq x y
 
+(.:) :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 (.:) = (.) . (.)
 
 with2 :: (Newtype a' a) => (a -> a') -> (a -> a -> c) -> a' -> a' -> c
