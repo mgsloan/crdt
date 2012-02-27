@@ -17,7 +17,7 @@ import qualified Data.IntMap as IM
 
 
 class Size a where
-  size :: a -> Int
+  size :: Integral i => a -> i
   null :: a -> Bool
   null = (0 ==) . size
 
@@ -62,7 +62,7 @@ delete = (`update` bottom)
 -- Set instances
 
 instance Size (S.Set a) where
-  size = S.size
+  size = fromIntegral . S.size
   null = S.null
 
 instance Clear (S.Set a) where
@@ -81,19 +81,19 @@ instance Ord a => Update   (S.Set a) where
 
 -- Map instances
 
-instance Size (M.Map k a) where
-  size = M.size
+instance Size              (M.Map k a) where
+  size = fromIntegral . M.size
   null = M.null
 
-instance Ord k => Clear (M.Map k a) where
+instance Ord k => Clear    (M.Map k a) where
   clear = const M.empty
 
-instance Ord k => Function    (M.Map k a) where
+instance Ord k => Function (M.Map k a) where
   type   Domain (M.Map k a) = k
   type Codomain (M.Map k a) = Maybe a
   value = flip M.lookup
 
-instance Ord k => Update      (M.Map k a) where
+instance Ord k => Update   (M.Map k a) where
   alter = M.alter
 
 
@@ -106,7 +106,7 @@ instance Function IS.IntSet where
   value = flip IS.member
 
 instance Size     IS.IntSet where
-  size   = IS.size
+  size   = fromIntegral . IS.size
   null   = IS.null
 
 instance Clear    IS.IntSet where
@@ -120,11 +120,11 @@ instance Update   IS.IntSet where
 
 -- IntMap instances
 
-instance Size (IM.IntMap a) where
-  size = IM.size
+instance Size     (IM.IntMap a) where
+  size = fromIntegral . IM.size
   null = IM.null
 
-instance Clear (IM.IntMap a) where
+instance Clear    (IM.IntMap a) where
   clear = const IM.empty
 
 instance Function (IM.IntMap a) where
@@ -132,7 +132,7 @@ instance Function (IM.IntMap a) where
   type Codomain (IM.IntMap a) = Maybe a
   value = flip IM.lookup
 
-instance Update (IM.IntMap a) where
+instance Update   (IM.IntMap a) where
   update k (Just x) = IM.insert k x
   update k Nothing  = IM.delete k
   alter  = IM.alter
@@ -141,8 +141,8 @@ instance Update (IM.IntMap a) where
 -- Function instances
 
 instance Enumerable k => Size (k -> Bool) where
-  size f = length . filter f $ universe
-  null f = not    . any    f $ universe
+  size f = fromIntegral . length . filter f $ universe
+  null f = not . any f $ universe
 
 instance Enumerable k => Clear (k ->  Bool) where
   clear _ _ = False
