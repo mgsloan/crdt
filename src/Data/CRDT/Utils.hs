@@ -3,25 +3,31 @@
   , FlexibleInstances
   , GeneralizedNewtypeDeriving
   , MultiParamTypeClasses
+  , NoMonomorphismRestriction
   , StandaloneDeriving
   , TemplateHaskell
+  , TypeOperators
   #-}
 
-module Data.CRDT.Utils                              -- Re-Exports 
-  ( JoinSemiLattice(..), BoundedJoinSemiLattice(..) -- Algebra.Lattice
-  , PartialOrd(..)                                  -- Algebra.PartialOrd
-  , first, second, (***)                            -- Control.Arrow
-  , Newtype(..), over                               -- Control.Newtype
-  , mkNewType                                       -- Control.Newtype.TH
-  , on                                              -- Data.Function
-  ,                                             module Data.Label
-  , comparing                                       -- Data.Ord
-  , Semigroup(..), Max(..), Monoid(..)              -- Data.Semigroup
+module Data.CRDT.Utils                 -- Re-Exports 
+  (                                module Algebra.Enumerable
+  ,                                module Algebra.Lattice
+  , PartialOrd(..)                     -- Algebra.PartialOrd
+  , first, second, (***)               -- Control.Arrow
+  , Newtype(..), over                  -- Control.Newtype
+  , mkNewType                          -- Control.Newtype.TH
+  , on                                 -- Data.Function
+  ,                                module Data.Label
+  , comparing                          -- Data.Ord
+  , Semigroup(..), Max(..), Monoid(..) -- Data.Semigroup
+  , V.Storable
 
-  , (.:), with2, over2, maxBy                       -- Utilities
+  , (.:), with2, over2, maxBy          -- Utilities
+  , union, intersection, empty, isSubsetOf, isProperSubsetOf, (\\)
   ) where
 
-import Algebra.Lattice      (JoinSemiLattice(..), BoundedJoinSemiLattice(..))
+import Algebra.Enumerable
+import Algebra.Lattice
 import Algebra.PartialOrd   (PartialOrd(..))
 import Control.Arrow        (first, second, (***))
 import Control.Newtype      (Newtype(..), over)
@@ -33,6 +39,7 @@ import Data.Ord             (comparing)
 import Data.Semigroup       (Semigroup(..), Max(..), Monoid(..))
 import Data.Vector.Storable ((//), (!))
 import Data.These           (These(..), mergeThese)
+import qualified Data.Vector.Generic as GV
 import qualified Data.Vector.Storable as V
 
 $(mkNewType ''Max)
@@ -84,7 +91,7 @@ instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice  [a] where
 instance (PartialOrd a) => PartialOrd [a] where
   leq x y = all id $ zipWith leq x y
 
-(.:) :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
+(.:) :: (c -> d) -> (a -> b -> c) -> a -> b -> d
 (.:) = (.) . (.)
 
 with2 :: (Newtype a' a) => (a -> a') -> (a -> a -> c) -> a' -> a' -> c
@@ -98,3 +105,17 @@ maxBy f x y = case f x y of
   LT -> y
   EQ -> x
   GT -> x
+
+atIndex :: GV.Vector v a => Int -> v a :-> a
+atIndex ix = lens (GV.! ix) ( \x -> (GV.// [(ix, x)]) )
+
+-- Aliases
+
+union = join
+intersection = meet
+empty = bottom
+
+isSubsetOf = leq
+isProperSubsetOf x y = (x `leq` y) && not (y `leq` x)
+
+(\\) = diff

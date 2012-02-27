@@ -6,13 +6,35 @@
   , TypeOperators
   #-}
 -- | CRDT Counter
-module Data.CRDT.Counter ( Counter, count ) where
+module Data.CRDT.Counter ( Inc, increment, incCount, Counter, count ) where
 
-import Data.CRDT.Inc
 import Data.CRDT.Utils
+
+newtype Inc a = Inc (Max a) deriving
+  ( Bounded, Eq, Ord, Read, Show, JoinSemiLattice, Semigroup, PartialOrd )
+
+--TODO: making newtype instances leaves the object open to violating CRDT. allow?
+$(mkNewType ''Inc)
+
+instance (Num a, PartialOrd a) => BoundedJoinSemiLattice (Inc a) where
+  bottom = Inc $ Max 0
+
+instance (Num a, PartialOrd a) => Monoid (Inc a) where { mappend = join; mempty = bottom }
+
+increment :: (Enum a, PartialOrd a) => Inc a -> Inc a
+increment = Inc `over` (Max `over` succ)
+
+incCount :: PartialOrd a => Inc a :-> a
+incCount = lens getter setter
+ where
+  getter = unpack . unpack
+  setter x = Inc `over` join (Max x)
+
 
 newtype Counter a = Counter (Inc a, Inc a) deriving
   ( Eq, Read, Show, JoinSemiLattice, BoundedJoinSemiLattice, Semigroup, Monoid )
+
+-- TODO: Storable
 
 $(mkNewType ''Counter)
 

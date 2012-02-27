@@ -6,7 +6,7 @@
   #-}
 module Data.CRDT.Tagged where
 
-import Data.CRDT.Inc
+import Data.CRDT.Counter
 import Data.CRDT.Utils
 
 import qualified Data.Vector.Storable as V
@@ -40,13 +40,14 @@ newtype MultiTagged t a = MultiTagged [Tagged t a] deriving
 
 $(mkNewType ''MultiTagged)
 
+{- TODO (requires Storable)
 newtype VersionVector a = VersionVector (V.Vector (Inc a)) deriving
   ( Eq, Ord, Read, Show, JoinSemiLattice, BoundedJoinSemiLattice )
 
 $(mkNewType ''VersionVector)
 
 --TODO: what about different sizes?
-instance (V.Storable a, PartialOrd a) => PartialOrd (VersionVector a) where
+instance (PartialOrd a) => PartialOrd (VersionVector a) where
   leq = VersionVector `with2` (V.and .: V.zipWith leq)
 
 instance (Eq a, PartialOrd t) => PartialOrd              (MultiTagged t a)
@@ -58,3 +59,4 @@ instance (Eq a, PartialOrd t) => JoinSemiLattice         (MultiTagged t a) where
 
 instance (Eq a, PartialOrd t) => BoundedJoinSemiLattice  (MultiTagged t a) where
   bottom = MultiTagged []
+-}

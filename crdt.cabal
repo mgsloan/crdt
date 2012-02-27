@@ -21,8 +21,8 @@ Source-Repository head
 Library
   Hs-Source-Dirs:    src
   Exposed-modules:   Data.CRDT
+                     Data.CRDT.Classes
                      Data.CRDT.Counter
-                     Data.CRDT.Inc
                      Data.CRDT.Set
                      Data.CRDT.Tagged
                      Data.CRDT.Utils
